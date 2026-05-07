@@ -1,7 +1,7 @@
 "use client";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useProductStore, Product } from "@/store/productStore";
 import {
   Box,
@@ -14,22 +14,24 @@ import {
   Select,
   MenuItem,
   Button,
+  Rating,
 } from "@mui/material";
 
 // debounce
 function debounce<T extends (...args: unknown[]) => void>(
   fn: T,
-  delay: number
+  delay: number,
 ) {
   let timer: ReturnType<typeof setTimeout>;
-  return (...args: Parameters<T>) => { //This extracts the real argument types from T
+  return (...args: Parameters<T>) => {
+    //This extracts the real argument types from T
     clearTimeout(timer);
     timer = setTimeout(() => fn(...args), delay);
   };
 }
 
 export default function ProductsPage() {
-  const { products, fetchProducts } = useProductStore();
+  const { products, fetchProducts,loading } = useProductStore();
 
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -39,75 +41,92 @@ export default function ProductsPage() {
     fetchProducts(10, page * 10, search, category);
   }, [page, search, category, fetchProducts]);
 
-  const handleSearch = debounce((val: string) => {
-    setSearch(val);
-    setPage(0);
-  }, 400);
+  const handleSearch = useMemo(
+    () =>
+      debounce((val: string) => {
+        setSearch(val as string);
+        setPage(0);
+      }, 400),
+    [],
+  );
+if(loading && (!products || products.length === 0)) return <p>Loading your products...</p> 
 
+// if(!products) return <p>Error: Could not retrieve Products. Try Refresh again</p>
   return (
     <ProtectedRoute>
-    <Box p={3}>
-      <Typography variant="h4" mb={2}>
-        Products
-      </Typography>
+      <Box p={3}>
+        <Typography variant="h4" mb={2}>
+          Products
+        </Typography>
 
-      {/* Search */}
-      <TextField
-        label="Search Products"
-        fullWidth
-        onChange={(e) => handleSearch(e.target.value)}
-        sx={{ mb: 2 }}
-      />
+        {/* Search */}
+        <TextField
+          label="Search Products"
+          fullWidth
+          onChange={(e) => handleSearch(e.target.value)}
+          sx={{ mb: 2 }}
+        />
 
-      {/* Category */}
-      <Select
-        fullWidth
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        sx={{ mb: 3 }}
-      >
-        <MenuItem value="">All</MenuItem>
-        <MenuItem value="smartphones">Smartphones</MenuItem>
-        <MenuItem value="laptops">Laptops</MenuItem>
-        <MenuItem value="fragrances">Fragrances</MenuItem>
-      </Select>
-
-      {/* Grid */}
-      <Grid container spacing={2}>
-        {products.map((p: Product) => (
-          <Grid  
-       size={{ xs: 12, sm: 6, md: 4 }}
-      key={p.id}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="140"
-                  image={p.image}
-              />
-
-              <CardContent>
-                <Typography variant="h6">{p.title}</Typography>
-                <Typography color="text.secondary">
-                  ${p.price}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Pagination */}
-      <Box mt={3}>
-        <Button
-          disabled={page === 0}
-          onClick={() => setPage(page - 1)}
+        {/* Category */}
+        <Select
+          fullWidth
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          sx={{ mb: 3 }}
+          
         >
-          Prev
-        </Button>
+          <MenuItem value="">All</MenuItem>
+          <MenuItem value="smartphones">Smartphones</MenuItem>
+          <MenuItem value="laptops">Laptops</MenuItem>
+          <MenuItem value="fragrances">Fragrances</MenuItem>
+        </Select>
 
-        <Button onClick={() => setPage(page + 1)}>Next</Button>
+        {/* Grid */}
+        <Grid container spacing={2}>
+          {products?.map((p: Product) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={p.id}>
+              <Card>
+                <CardMedia component="img" height="140" image={p.image} />
+
+                <CardContent>
+                  <Typography variant="h6">{p.title}</Typography>
+                  <Typography color="text.secondary">${p.price}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {p.category}
+                  </Typography>{" "}
+                  {/* ← add */}
+                  <Rating
+                    value={p.rating}
+                    readOnly
+                    precision={0.1}
+                    size="small"
+                  />{" "}
+                  {/* ← add */}
+                  <Box mt={1}>
+                    <Button
+                      href={`/dashboard/products/${p.id}`}
+                      size="small"
+                      variant="outlined"
+                      fullWidth
+                    >
+                      View Details
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Pagination */}
+        <Box mt={3}>
+          <Button disabled={page === 0} onClick={() => setPage(page - 1)}>
+            Prev
+          </Button>
+
+          <Button onClick={() => setPage(page + 1)}>Next</Button>
+        </Box>
       </Box>
-    </Box>
     </ProtectedRoute>
   );
 }
