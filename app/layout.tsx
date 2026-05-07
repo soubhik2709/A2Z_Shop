@@ -2,7 +2,6 @@ import type { Metadata } from "next"; //use for seo,
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ThemeRegistry from "./themeRegistry";
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
