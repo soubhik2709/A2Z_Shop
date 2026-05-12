@@ -15,6 +15,7 @@ import {
   MenuItem,
   Button,
   Rating,
+  CircularProgress,
 } from "@mui/material";
 import Link from "next/link";
 
@@ -36,6 +37,7 @@ export default function ProductsPage() {
 
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const [category, setCategory] = useState("");
 
   useEffect(() => {
@@ -50,8 +52,7 @@ export default function ProductsPage() {
       }, 400),
     [],
   );
-  if (loading && (!products || products.length === 0))
-    return <p>Loading your products...</p>;
+  // if (loading && (!products || products.length === 0))   return <p>Loading your products...</p>; ////This replavce the main cmponet while loading is true
 
   // if(!products) return <p>Error: Could not retrieve Products. Try Refresh again</p>
   return (
@@ -74,7 +75,11 @@ export default function ProductsPage() {
         <TextField
           label="Search Products"
           fullWidth
-          onChange={(e) => handleSearch(e.target.value)}
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value); // ← display updates instantly
+            handleSearch(e.target.value); // ← fetch waits 400ms
+          }}
           sx={{ mb: 2 }}
         />
 
@@ -91,45 +96,68 @@ export default function ProductsPage() {
           <MenuItem value="fragrances">Fragrances</MenuItem>
         </Select>
 
+        {loading && (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+            <CircularProgress size={28} />
+          </Box>
+        )}
+
         {/* Grid */}
         <Grid container spacing={2}>
-          {products?.map((p: Product) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={p.id}>
-              <Card>
-                <CardMedia component="img" height="140" image={p.image} />
+          {products?.map(
+            (
+              p: Product, //changes from Product to products
+            ) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={p.id}>
+                <Card>
+                  <CardMedia component="img" height="140" image={p.image} />
 
-                <CardContent>
-                  <Typography variant="h6">{p.title}</Typography>
-                  <Typography color="text.secondary">${p.price}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {p.category}
-                  </Typography>{" "}
-                  {/* ← add */}
-                  <Rating
-                    value={p.rating}
-                    readOnly
-                    precision={0.1}
-                    size="small"
-                  />{" "}
-                  {/* ← add */}
-                  <Box sx={{ mt: 2 }}>
-                    <Button
-                      href={`/dashboard/products/${p.id}`}
+                  <CardContent>
+                    <Typography variant="h6">{p.title}</Typography>
+                    <Typography color="text.secondary">${p.price}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {p.category}
+                    </Typography>{" "}
+                    {/* ← add */}
+                    <Rating
+                      value={p.rating}
+                      readOnly
+                      precision={0.1}
                       size="small"
-                      variant="outlined"
-                      fullWidth
-                    >
-                      View Details
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                    />{" "}
+                    {/* ← add */}
+                    <Box sx={{ mt: 2 }}>
+                      <Button
+                        href={`/dashboard/products/${p.id}`}
+                        size="small"
+                        variant="outlined"
+                        fullWidth
+                      >
+                        View Details
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ),
+          )}
         </Grid>
 
+        {/* Try again later: */}
+        {!loading && products.length === 0 && (
+          <Box sx={{ textAlign: "center", py: 4 }}>
+            <Typography sx={{ mb: 1 }}>No products found.</Typography>
+            <Button
+              variant="outlined"
+              onClick={() => fetchProducts(10, page * 10, search, category)}
+            >
+              Retry
+            </Button>
+          </Box>
+        )}
+
         {/* Pagination */}
-        <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ mt: 3, display: "flex", alignItems: "center", gap: 2 }}>
           <Button disabled={page === 0} onClick={() => setPage(page - 1)}>
             Prev
           </Button>

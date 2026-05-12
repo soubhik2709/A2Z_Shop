@@ -12,26 +12,73 @@ import PeopleIcon from "@mui/icons-material/People";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 // import ProtectedRoute from '@/components/ProtectedRoute'; //use the protectedRoute later ,
 
 export default function DashboardPage() {
   const [totalUsers, setTotalUsers] = useState<number | null>(null);
   const [totalProducts, setTotalProducts] = useState<number | null>(null);
+  const [error, setError] = useState(false);
+  // const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Total users
+
+  const loadStats = useCallback(()=>{
+    setError(false);
+    setTotalUsers(null);
+    setTotalProducts(null);
+ 
+    // Total Users
     fetch("/api/proxy/users?limit=1&skip=0")
-      .then((r) => r.json())
-      .then((d) => setTotalUsers(d.total));
+    .then((r)=>{if(!r.ok) throw new Error();return r.json(); })
+    .then((d)=>setTotalUsers(d.total))
+    .catch(() => setError(true));
 
     //Total Products
-    fetch("/api/proxy/products?limit=1&skip=0")
-      .then((r) => r.json())
-      .then((d) => setTotalProducts(d.total));
-  }, []);
+      fetch("/api/proxy/products?limit=1&skip=0")
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((d) => setTotalProducts(d.total))
+      .catch(() => setError(true));
 
-  //why use here limit =1?
+  },[]);
+
+useEffect(() => {
+  // Define an async wrapper to handle the mounting logic
+  const initialize =  () => {
+     loadStats();
+  };
+
+  initialize();
+}, [loadStats]);
+
+
+  // const loadStats = () => {
+  //   setError(false);
+
+  //   // Total users
+  //   fetch("/api/proxy/users?limit=1&skip=0")
+  //     .then((r) => {
+  //       if (!r.ok) throw new Error();
+  //       return r.json();
+  //     })
+  //     .then((d) => setTotalUsers(d.total))
+  //     .catch(() => setError(true));
+
+  //   //Total Products
+
+  //   fetch("/api/proxy/products?limit=1&skip=0")
+  //     .then((r) => {
+  //       if (!r.ok) throw new Error();
+  //       return r.json();
+  //     })
+  //     .then((d) => setTotalProducts(d.total))
+  //     .catch(() => setError(true));
+  // };
+
+  // //why use here limit =1?
+
+  // useEffect(() => {
+  //   loadStats();
+  // }, []);
 
   const stats = [
     {
@@ -74,7 +121,17 @@ export default function DashboardPage() {
                     {stat.label}
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                    {stat.value === null ? "..." : stat.value}
+                    {stat.value === null ? (
+                      error ? (
+                        <Button size="small" onClick={loadStats}>
+                          Retry
+                        </Button>
+                      ) : (
+                        "..."
+                      )
+                    ) : (
+                      stat.value
+                    )}
                   </Typography>
                 </Box>
               </CardContent>

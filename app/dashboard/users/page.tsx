@@ -12,6 +12,7 @@ import {
   TableCell,
   TableBody,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import Link from "next/link";
 
@@ -32,6 +33,7 @@ export default function UsersPage() {
   const { users, fetchUsers, loading, total } = useUserStore();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
+  const [inputValue, setInputValue] = useState("");
 
   // fetch users when page or search changes
   useEffect(() => {
@@ -48,8 +50,8 @@ export default function UsersPage() {
     [],
   );
 
-  if (loading && (!users || users.length === 0))
-    return <p>Loading Users Details...</p>;
+  // if (loading && (!users || users.length === 0))
+  //   return <p>Loading Users Details...</p>;
 
   // If it's NOT loading but users is still missing/null, show an error or empty state
   // if (!users) {
@@ -77,9 +79,20 @@ export default function UsersPage() {
         <TextField
           label="Search Users"
           fullWidth
-          onChange={(e) => handleSearch(e.target.value)}
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            handleSearch(e.target.value);
+          }}
           sx={{ mb: 2 }}
         />
+
+        {loading && (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+            <CircularProgress size={28} />
+          </Box>
+        )}
+
         <Table>
           <TableHead>
             <TableRow>
@@ -114,13 +127,22 @@ export default function UsersPage() {
             {!loading && users?.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center">
-                  No users found.
+                  <Box sx={{ py: 2 }}>
+                    <Typography sx={{ mb: 1 }}>No users found.</Typography>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => fetchUsers(10, page * 10, search)} // ← manual retry
+                    >
+                      Retry
+                    </Button>
+                  </Box>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
-        <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ mt: 3, display: "flex", alignItems: "center", gap: 2 }}>
           <Button disabled={page === 0} onClick={() => setPage(page - 1)}>
             Prev
           </Button>
