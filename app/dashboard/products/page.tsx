@@ -8,16 +8,14 @@ import {
   Typography,
   TextField,
   Grid,
-  Card,
-  CardContent,
-  CardMedia,
   Select,
   MenuItem,
   Button,
-  Rating,
   CircularProgress,
 } from "@mui/material";
+import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
+import { useShallow } from "zustand/shallow";
 
 // debounce
 function debounce<Args extends unknown[]>(
@@ -33,7 +31,14 @@ function debounce<Args extends unknown[]>(
 }
 
 export default function ProductsPage() {
-  const { products, fetchProducts, loading } = useProductStore();
+  // const { products, fetchProducts, loading } = useProductStore();
+  const { products, fetchProducts, loading } = useProductStore(
+    useShallow((state) => ({
+      products: state.products,
+      fetchProducts: state.fetchProducts,
+      loading: state.loading,
+    })),
+  );//the  productstore changes data only render as reference ,untill come from api.
 
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -102,6 +107,8 @@ export default function ProductsPage() {
           </Box>
         )}
 
+        {/* Prodcut display section */}
+
         {/* Grid */}
         <Grid container spacing={2}>
           {products?.map(
@@ -109,35 +116,7 @@ export default function ProductsPage() {
               p: Product, //changes from Product to products
             ) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={p.id}>
-                <Card>
-                  <CardMedia component="img" height="140" image={p.image} />
-
-                  <CardContent>
-                    <Typography variant="h6">{p.title}</Typography>
-                    <Typography color="text.secondary">${p.price}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {p.category}
-                    </Typography>{" "}
-                    {/* ← add */}
-                    <Rating
-                      value={p.rating}
-                      readOnly
-                      precision={0.1}
-                      size="small"
-                    />{" "}
-                    {/* ← add */}
-                    <Box sx={{ mt: 2 }}>
-                      <Button
-                        href={`/dashboard/products/${p.id}`}
-                        size="small"
-                        variant="outlined"
-                        fullWidth
-                      >
-                        View Details
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
+                <ProductCard p={p} />
               </Grid>
             ),
           )}

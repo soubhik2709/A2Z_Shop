@@ -15,7 +15,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import Link from "next/link";
-import UserRow from '@/components/UserRow';
+import UserRow from "@/components/UserRow";
 import { useShallow } from "zustand/shallow";
 // It delays execution until user stops typing
 function debounce<Args extends unknown[]>(
@@ -32,12 +32,12 @@ function debounce<Args extends unknown[]>(
 
 export default function UsersPage() {
   const { users, fetchUsers, loading, total } = useUserStore(
- useShallow((state)=>({
-  users:state.users,
-  fetchUsers:state.fetchUsers,
-  loading:state.loading,
-  total: state.total,
- }))
+    useShallow((state) => ({
+      users: state.users,
+      fetchUsers: state.fetchUsers,
+      loading: state.loading,
+      total: state.total,
+    })),
   );
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -112,10 +112,12 @@ export default function UsersPage() {
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
-      
+
           {/* ussers   */}
           <TableBody>
-            {users.map((user: User) => <UserRow key ={user.id} user={user}/>)}
+            {users.map((user: User) => (
+              <UserRow key={user.id} user={user} />
+            ))}
             {!loading && users?.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center">
