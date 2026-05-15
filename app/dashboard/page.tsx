@@ -74,7 +74,7 @@ useEffect(() => {
         Admin Dashboard
       </Typography>
       <Typography variant="body1" sx={{ color: "text.secondary", mb: 4 }}>
-        Welcome to the Help Study Abroad admin panel.
+        Welcome to the A2Z_Shop admin panel.
       </Typography>
 
       {/* Stats */}

@@ -1,4 +1,4 @@
-# Help Study Abroad Dashboard
+# A2Z_Shop Dashboard
 
 A modern admin dashboard built with Next.js, TypeScript, Zustand, and Material UI (MUI).
 

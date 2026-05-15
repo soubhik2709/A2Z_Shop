@@ -15,7 +15,7 @@ export default function Navbar() {
           <Box  sx={{display:"flex", alignItems:"center",gap:1 ,flexGrow: 1 }}>
           <DashboardIcon />
           <Typography sx={{variant:"h6", fontWeight:'bold'}}>
-            Help Study Abroad
+            A2Z_Shop
           </Typography>
         </Box>
         {/* <Typography variant="h6" sx={{ flexGrow: 1, cursor:"pointer" }}>Admin Panel</Typography> */}
