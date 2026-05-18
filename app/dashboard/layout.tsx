@@ -1,5 +1,5 @@
 "use client";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/dashboardComponent/Navbar";
 import { Box } from "@mui/material";
 
 export default function DashboardLayout({

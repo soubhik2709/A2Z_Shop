@@ -12,7 +12,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/dashboardComponent/ProductCard";
 import Link from "next/link";
 import { useShallow } from "zustand/shallow";
 

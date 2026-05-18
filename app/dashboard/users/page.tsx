@@ -15,7 +15,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import Link from "next/link";
-import UserRow from "@/components/UserRow";
+import UserRow from "@/components/dashboardComponent/UserRow";
 import { useShallow } from "zustand/shallow";
 // It delays execution until user stops typing
 function debounce<Args extends unknown[]>(
